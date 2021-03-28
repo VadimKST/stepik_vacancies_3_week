@@ -1,6 +1,8 @@
 
-from django.http import HttpResponseNotFound, HttpResponseServerError, Http404
+from django.http import HttpResponseNotFound, HttpResponseServerError
+from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, TemplateView
+
 from vacancy.models import Vacancy, Company, Specialty
 
 
@@ -19,40 +21,50 @@ class HomeView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Джуманджи'
         context['specialties'] = Specialty.objects.all()
+        context['companies'] = Company.objects.all()
+        return context
+
+
+class SpecialtyView(ListView):
+    model = Vacancy
+    template_name = 'vacancy/vacancies.html'
+    context_object_name = 'Vacancies'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Вакансии | Джуманджи'
+        context['specialty'] = get_object_or_404(Specialty, code=self.kwargs['spec'])
         return context
 
     def get_queryset(self):
-        return Company.objects.value()
-#
-#
-# class Vacancies(ListView):
-#     model = Vacancy
-#     template_name = 'vacancy/vacancies.html'
-#     context_object_name = 'Vacancy'
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['page_title'] = 'Джуманджи'
+        return Vacancy.objects.filter(specialty__code=self.kwargs['spec']).select_related('specialty')
 
 
-# class Specialty(ListView):
-#     model = Specialty
-#     template_name = 'vacancy/index.html'
-#     context_object_name = 'Specialty'
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['page_title'] = 'Джуманджи'
+class VacanciesView(ListView):
+    model = Vacancy
+    template_name = 'vacancy/vacancies.html'
+    context_object_name = 'Vacancies'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Вакансии | Джуманджи'
+        context['specialty'] = {'title': 'Все вакансии'}
+        return context
 
 
-# class Company(ListView):
-#     model = Company
-#     template_name = 'vacancy/index.html'
-#     context_object_name = 'Company'
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['page_title'] = 'Джуманджи'
+class CompanyView(ListView):
+    model = Company
+    template_name = 'vacancy/company.html'
+    context_object_name = 'Company'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Компания | Джуманджи'
+        context['vacancies'] = Vacancy.objects.filter(company=self.kwargs['comp_id'])
+        return context
+
+    def get_queryset(self):
+        return get_object_or_404(Company, pk=self.kwargs['comp_id'])
 
 
 class VacancyView(ListView):
@@ -63,9 +75,7 @@ class VacancyView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Вакансия | Джуманджи'
-        context['Vacancy'] = Vacancy.objects.get(pk=1)
-        print(context)
         return context
-    #
-    # def get_queryset(self):
-    #     return Vacancy.objects.filter(pk=self.kwargs['vac_id']).select_related('company')
+
+    def get_queryset(self):
+        return get_object_or_404(Vacancy, pk=self.kwargs['vac_id'])
