@@ -1,4 +1,4 @@
-
+from django.db.models import Count
 from django.http import HttpResponseNotFound, HttpResponseServerError
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, TemplateView
@@ -20,8 +20,8 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Джуманджи'
-        context['specialties'] = Specialty.objects.all()
-        context['companies'] = Company.objects.all()
+        context["specialties"] = Specialty.objects.annotate(vacancies_count=Count('vacancies'))
+        context["companies"] = Company.objects.annotate(vacancies_count=Count('vacancies'))
         return context
 
 
@@ -68,7 +68,7 @@ class CompanyView(ListView):
 
 
 class VacancyView(ListView):
-    model = Vacancy
+    queryset = Vacancy.objects.all().select_related('company')
     template_name = 'vacancy/vacancy.html'
     context_object_name = 'Vacancy'
 
