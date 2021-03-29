@@ -51,6 +51,9 @@ class VacanciesView(ListView):
         context['specialty'] = {'title': 'Все вакансии'}
         return context
 
+    def get_queryset(self):
+        return super().get_queryset().select_related('specialty')
+
 
 class CompanyView(ListView):
     model = Company
@@ -60,7 +63,7 @@ class CompanyView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Компания | Джуманджи'
-        context['vacancies'] = Vacancy.objects.filter(company=self.kwargs['comp_id'])
+        context['vacancies'] = Vacancy.objects.filter(company=self.kwargs['comp_id']).select_related('specialty')
         return context
 
     def get_queryset(self):
