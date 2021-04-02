@@ -3,7 +3,7 @@ from django.urls import path, include
 from stepik_vacancies import settings
 
 from vacancy.views import (custom_handler404, custom_handler500, HomeView, VacancyView, SpecialtyView, VacanciesView,
-                           CompanyView, )
+                           CompanyView)
 
 handler404 = custom_handler404
 handler500 = custom_handler500
