@@ -13,7 +13,7 @@ urlpatterns = [
     path('vacancies/', VacanciesView.as_view(), name='vacancies'),
     path('vacancies/cat/<str:spec>', SpecialtyView.as_view(), name='specialty'),
     path('companies/<int:comp_id>', CompanyView.as_view(), name='company'),
-    path('vacancies/<int:vac_id>', VacancyView.as_view(), name='vacancy')
+    path('vacancies/<int:vac_id>', VacancyView.as_view(), name='vacancy'),
 ]
 
 if settings.DEBUG:
